@@ -1,0 +1,93 @@
+{
+  "paper": {
+    "title": "Plasma proteomic associations with genetics and health in the UK Biobank",
+    "authors": "Sun BB, Chiou J, Traylor M, et al.",
+    "journal": "Nature",
+    "year": 2023,
+    "doi": "10.1038/s41586-023-06592-6"
+  },
+  "study_design": {
+    "cohort_names": ["UK Biobank Pharma Proteomics Project (UKB-PPP)"],
+    "total_n": 54306,
+    "design_type": "cross-sectional biobank",
+    "sample_matrix": "plasma",
+    "ancestries": [
+      {"group": "European", "n": 46327},
+      {"group": "South Asian", "n": 3810},
+      {"group": "African", "n": 2211},
+      {"group": "East Asian", "n": 895},
+      {"group": "Admixed American", "n": 285}
+    ],
+    "multi_ancestry_analysis": "separate",
+    "ancestry_specific_pqtls_reported": true,
+    "n_ancestry_specific_pqtls": 1163
+  },
+  "olink_platform": {
+    "panel_name": "Olink Explore 3072",
+    "panel_version": "v1",
+    "n_proteins_assayed": 2941,
+    "n_proteins_with_pqtl": 2730,
+    "npx_batch_correction_method": "Olink internal batch normalization using bridge samples",
+    "npx_intensity_normalization": "Quantile normalization applied per plate",
+    "lod_handling": "Proteins with >25% samples below LOD excluded; remaining below-LOD set to LOD/sqrt(2)",
+    "lod_exclusion_threshold_pct": 25,
+    "bridging_performed": true,
+    "n_bridge_samples": 200,
+    "bridging_reference_dataset": "UKB-PPP pilot cohort"
+  },
+  "genotyping": {
+    "array": "UK Biobank Axiom Array",
+    "imputation_reference_panel": "HRC r1.1 + UK10K",
+    "imputation_r2_threshold": 0.3,
+    "maf_threshold": 0.001,
+    "maf_appropriateness_note": "MAF ≥ 0.001 appropriate given N > 50,000; yields ~1 expected minor allele carrier per 500 individuals at minimum"
+  },
+  "gwas_methods": {
+    "statistical_model": "Linear regression via REGENIE v3.2.1",
+    "significance_threshold_genomewide": "5×10⁻⁸",
+    "bonferroni_correction_for_proteins": true,
+    "cis_threshold": "1.7×10⁻¹¹ (5×10⁻⁸ / 2941 proteins)",
+    "trans_threshold": "5×10⁻⁸",
+    "cis_window_size_kb": 1000,
+    "cis_window_anchor": "TSS",
+    "covariates": ["age", "sex", "BMI", "top 20 genetic PCs", "Olink plate", "sample dilution factor", "frozen sample indicator", "UKB assessment centre"]
+  },
+  "post_gwas": {
+    "fine_mapping": {
+      "performed": true,
+      "method": "SuSiE",
+      "n_credible_sets": 14287,
+      "pip_threshold": 0.9
+    },
+    "colocalization": {
+      "performed": true,
+      "method": "coloc v5",
+      "traits_tested": ["GTEx v8 eQTLs", "GWAS Catalog disease loci", "eQTLGen blood eQTLs"],
+      "pp4_threshold": 0.8,
+      "key_findings": "1,547 protein-disease colocalizations identified; notable examples include IL6R with inflammatory bowel disease, PCSK9 with LDL cholesterol, and APOE with Alzheimer's disease"
+    },
+    "epitope_artifact_assessment": {
+      "performed": true,
+      "method": "Comparison with SomaScan v4.1 pQTLs; SNPs within 10bp of antibody epitope flagged",
+      "n_pqtls_flagged": 89
+    },
+    "trans_hotspots": [
+      {"locus": "ABO", "n_proteins_influenced": 187},
+      {"locus": "HLA region", "n_proteins_influenced": 143},
+      {"locus": "FUT2", "n_proteins_influenced": 61},
+      {"locus": "APOE", "n_proteins_influenced": 38}
+    ]
+  },
+  "mendelian_randomization": {
+    "performed": true,
+    "proteins_tested": ["IL6R", "PCSK9", "GDF15", "VEGFA", "TNF"],
+    "outcomes_tested": ["Coronary artery disease", "Type 2 diabetes", "Alzheimer's disease", "BMI", "LDL cholesterol"],
+    "methods_used": ["IVW", "MR-Egger", "weighted median", "MR-PRESSO"],
+    "f_statistics_reported": true,
+    "key_findings": "PCSK9 → LDL: OR 0.71 per SD (p=4.2×10⁻¹²); IL6R → CAD: OR 0.87 per SD (p=0.003); GDF15 → BMI: β=−0.12 (p=6.1×10⁻⁸)"
+  },
+  "data_availability": {
+    "summary_stats_public": true,
+    "access_point": "GWAS Catalog: GCST90293000–GCST90295940; open access via UK Biobank AMS portal"
+  }
+}
