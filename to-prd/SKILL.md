@@ -1,10 +1,10 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a PRD and submit it as a GitHub issue. Use when user wants to create a PRD from the current context.
+description: Turn the current conversation context into a PRD and submit it to Wiki. Use when user wants to create a PRD from the current context.
 ---
 
 Turn the current conversation context and your codebase understanding into a PRD,
-then submit that PRD as a GitHub issue.
+then submit that PRD as a document to the Szymon WIKI.
 
 Do not interview the user. Synthesize from what is already known in the conversation
 and from the repository. Only ask the user something if issue creation is blocked by
@@ -20,7 +20,8 @@ missing access or missing repository information.
 3. Decide which modules should have tests written for them. Base this on risk,
    surface area, and whether the behavior can be validated externally.
 4. Write the PRD using the template below.
-5. Submit the PRD as a GitHub issue in the current repository.
+5. Find the WIKI, use vault skills to explore how to add a document to the WIKI
+6. Add document to WIKI.
 
 When you write the PRD:
 
@@ -33,7 +34,7 @@ When you write the PRD:
 - Do not include specific file paths or code snippets.
 - Do not invent decisions that conflict with the current conversation.
 
-When you submit the GitHub issue:
+When you write to the WIKI:
 
 - Use a clear title that describes the feature or PRD topic.
 - Use the PRD body as the issue body.

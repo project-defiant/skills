@@ -1,0 +1,160 @@
+---
+name: otai
+description: Answer natural-language questions about Open Targets Platform data (targets, diseases, associations, evidence, drugs, etc.) by driving the `otai` CLI, which runs guarded read-only SQL against release parquet files on S3. Use whenever the user asks about Open Targets targets/diseases/drugs/evidence/associations, wants a specific Open Targets release explored or compared, or asks a question that requires querying Open Targets Platform data.
+---
+
+# otai — Open Targets Agentic Query Tool
+
+`otai` is the engine: it owns the schema catalog, DuckDB views, and all
+guardrails. This Skill is a thin instruction layer on top of it — it tells
+you which subcommands exist, when to call them, and how to react to their
+output. It carries no independent logic of its own: never re-derive or
+re-enforce a guardrail (e.g. read-only checks, timeouts, row caps) yourself
+in prose or in a query — the CLI already does that. Your job is to call the
+CLI correctly and interpret what it returns.
+
+## Invocation
+
+```
+uvx --from git+https://github.com/opentargets/otai.git otai <subcommand> [args] [--format table]
+```
+
+A local checkout is not required. uvx installs and runs OTAI directly from the Open Targets GitHub repository.
+
+Omit --format table to receive the default JSON envelope, which is preferred for agent parsing. Use --format table only when displaying results directly to a person.
+
+For reproducible execution, pin a release tag or commit:
+
+uvx --from git+https://github.com/opentargets/otai.git@<tag-or-commit> \
+  otai <subcommand> [args] [--format table]
+
+When developing OTAI locally, use the repository path instead:
+
+uvx --from <repo-path> \
+  otai <subcommand> [args] [--format table]
+
+
+## Subcommands
+
+### `otai list-releases`
+Lists releases available in the S3 bucket, flagging which is `latest` and
+which are already cached locally. No arguments besides `--format`.
+
+### `otai list-datasets [--release X]`
+Lists all datasets (recordSets) for one release, each with a one-line
+description. `--release` defaults to `latest`; single release only (no
+comparing releases in one call).
+
+### `otai describe-dataset <name> [--release X]`
+Positional `<name>` (the dataset to describe) plus `--release` (default
+`latest`). Returns the full field list for that dataset in that release:
+column names, types, descriptions, and cross-dataset relationships/nested
+subfields, parsed from the release's croissant schema.
+
+### `otai run-sql "<query>" [--timeout SECONDS]`
+Positional `<query>`, a read-only SQL string.
+
+**No `--release` flag, unlike the subcommands above — don't pass one.**
+Each release is a DuckDB schema named after its identifier, and `otai`
+reads which release(s) it needs straight off your query's schema
+qualifiers: `select * from "26.06".target` → release `26.06`, fetched/built
+automatically if needed. Unqualified names (e.g. `target`) resolve to
+`latest`. A single call can span any number of releases this way, e.g.
+`... "26.06".target join "26.03".target on ...` — no separate flag or step
+for comparing releases.
+
+- The CLI enforces read-only SQL, a ~1000-row cap (response says whether
+  results were truncated), and a timeout — do not attempt to replicate or
+  second-guess these checks yourself.
+- `--timeout SECONDS` overrides the default ~45s timeout for this call
+  only. Use it when a query is legitimately slow but useful (e.g. a full
+  aggregate over a very large dataset) rather than a mistake to fix — see
+  rule 5 below for when to reach for it instead of narrowing the query.
+
+## Environment variables
+
+Configuration is via env vars, not CLI flags (except `--timeout`, which is
+per-call). You normally won't need to set any of these — the defaults are
+correct for regular use — but they're worth knowing about:
+
+| Variable            | Default                          | Purpose |
+|----------------------|-----------------------------------|---------|
+| `OTAI_CACHE_DIR`     | `~/.cache/otai`                   | Where the DuckDB catalog, the "latest release" cache, and cached `croissant.json` files live. |
+| `OTAI_BASE_URI`      | the public Open Targets S3 bucket | Root the CLI reads parquet/`croissant.json` from. Only relevant for testing against local fixtures — never point this anywhere else in normal use. |
+| `OTAI_LOG_LEVEL`     | `INFO`                            | Verbosity of the CLI's stderr logging (progress/cache/retry messages). Set to `DEBUG` if you need more detail while diagnosing an issue; logging never touches stdout, so it's always safe to leave at the default. |
+
+## JSON envelope
+
+Every command emits one of:
+
+```json
+{"ok": true, "data": { ... }}
+```
+```json
+{"ok": false, "error": {"type": "...", "message": "..."}}
+```
+
+`error.type` values you may see, and how to react:
+
+| `error.type`           | Meaning                                             | What to do |
+|------------------------|------------------------------------------------------|------------|
+| `guardrail_violation`  | Query isn't a single read-only SELECT/WITH           | Fix the SQL (e.g. remove the mutating/DDL statement) and retry |
+| `sql_error`            | SQL failed to parse, or failed at execution           | Fix the SQL syntax/logic and retry |
+| `timeout`              | Query ran past the execution time limit               | If the query is doing more work than the question needs, narrow it (add filters/LIMIT, reduce scope) and retry. If it's already minimal and legitimately slow (e.g. a full aggregate over a huge dataset), retry the *same* query with `--timeout <seconds>` instead |
+| `release_not_found`    | A schema-qualified release in the query is unknown    | Run `list-releases` to see valid release identifiers, then retry with a correct qualifier |
+| `dataset_not_found`    | `describe-dataset` name doesn't exist in that release | Run `list-datasets` for that release to find the correct name |
+| `s3_error`             | Couldn't list/reach the S3 bucket                     | Report the failure to the user; retrying immediately is unlikely to help |
+| `catalog_error`        | Local DuckDB catalog couldn't be opened/built          | Report the failure to the user |
+| `croissant_error`      | A release's schema descriptor couldn't be fetched/parsed | Report the failure to the user |
+
+## Behavioral rules
+
+1. **Never guess a table/schema name.** If you're unsure which dataset(s)
+   are relevant to the question, call `list-datasets` first.
+2. **Always `describe-dataset` before joining.** Column names,
+   relationships, and join keys aren't guessable from a dataset name alone
+   — check the real field list first.
+3. **Always include a `LIMIT`** in exploratory/preview queries, unless the
+   question genuinely needs a full aggregate (e.g. `COUNT(*)`,
+   `AVG(...)` over the whole table).
+4. **Schema-qualify explicitly for non-latest or multi-release
+   questions.** Use `"26.03".target` etc. when the question concerns a
+   specific past release or spans more than one release; leave table names
+   unqualified when the question is about the latest release.
+5. **On a `run-sql` error, branch on `error.type`** per the table above —
+   in short: `timeout` → narrow and retry, or retry with `--timeout
+   <seconds>` if the query is already minimal and legitimately slow;
+   `sql_error` / `guardrail_violation` → fix the SQL; `release_not_found`
+   → check `list-releases` before retrying.
+6. **End your final answer with every `run-sql` query you ran**, not just
+   the last one if you iterated — plus the release(s) queried — so the
+   user can verify or rerun them.
+7. **Check `data.truncated` on a successful `run-sql`, not just errors.**
+   A capped result (~1000 rows) is still `ok: true`; ignoring `truncated`
+   risks presenting a partial result as complete. When it's `true`, prefer
+   re-querying with an aggregate (`COUNT`, `GROUP BY`, `TOP N`) over the
+   raw rows; if the user genuinely needs row-level detail beyond 1000,
+   add an `ORDER BY` on a stable column and page with repeated
+   `LIMIT`/`OFFSET` calls. Either way, tell the user when what you're
+   showing is a subset.
+
+## Guidelines
+
+- When a user asks for associations, assume they are asking for direct, not indirect (unless otherwise specified).
+- If the tables are very large, timeouts may occur. In such cases, ask if the user would like to download the data (explain how much data will be transferred). If yes, download and run the query there locally.
+
+## Example
+
+Question: "How many approved drug targets does the human genome have,
+according to Open Targets?"
+
+1. `otai list-datasets` → confirms a `target` dataset exists (default,
+   `latest` release).
+2. `otai describe-dataset target` → confirms the dataset has an `id`
+   column and how targets are defined; no join needed for this question.
+3. `otai run-sql "SELECT count(*) FROM target"` — a full aggregate, so no
+   `LIMIT` is needed (rule 3's exception).
+4. Answer cites the release returned in the response's `data.release`
+   field and the exact SQL run, e.g.: "Per Open Targets release 26.06,
+   there are 78,691 targets in the platform (`SELECT count(*) FROM
+   target`)."

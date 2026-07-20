@@ -1,17 +1,18 @@
 ---
 name: to-issues
-description: Break a plan, spec, or PRD into independently-grabbable GitHub issues using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
+description: Break a plan, spec, or PRD into independently-grabbable WIKI issues using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
 ---
 
 # To Issues
 
-Break a plan into independently-grabbable GitHub issues using vertical slices (tracer bullets).
+Break a plan into independently-grabbable WIKI issues using vertical slices (tracer bullets).
 
 ## Process
 
 ### 1. Gather context
 
 Work from whatever is already in the conversation context. If the user passes a GitHub issue number or URL as an argument, fetch it with `gh issue view <number>` (with comments).
+If the user passes a WIKI project, explore it first using vault skill.
 
 ### 2. Explore the codebase (optional)
 
@@ -47,9 +48,10 @@ Ask the user:
 
 Iterate until the user approves the breakdown.
 
-### 5. Create the GitHub issues
 
-For each approved slice, create a GitHub issue using `gh issue create`. Use the issue body template below.
+### 5. Create WIKI issues
+
+For each approved slice, create a new WIKI document under the mentioned project. Use the issue body template below.
 
 Create issues in dependency order (blockers first) so you can reference real issue numbers in the "Blocked by" field.
 
@@ -77,3 +79,7 @@ Or "None - can start immediately" if no blockers.
 </issue-template>
 
 Do NOT close or modify any parent issue.
+
+### 6. Create the GitHub issues (Optional - !ONLY IF USER ASKS)
+
+For each approved slice, create a GitHub issue using `gh issue create`.
