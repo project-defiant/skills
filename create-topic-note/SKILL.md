@@ -7,7 +7,7 @@ description: Create a user-selected Obsidian topic note from reviewed research. 
 
 Read `/Users/ss60/.agents/skills/vault/references/project-schema.md` before acting.
 
-1. Require the user to identify the concept, method, or phrase to capture. Do not create topic notes merely because one seems useful.
+1. Require the user to identify the concept, method, or phrase to capture.
 2. Locate the relevant source note and annotation links.
 3. Draft a concise topic note under `$SZYMON_WIKI/../Topic-notes/`, named after the selected topic.
 4. Include frontmatter for title, `kind: topic-note`, tags, projects, source notes, and source papers.
