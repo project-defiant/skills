@@ -7,17 +7,23 @@ description: Transfer an explicitly selected implementation discussion into a ne
 
 Read `/Users/ss60/.agents/skills/vault/references/project-schema.md` before acting.
 
-A PRD represents one implementation phase. It is not created merely because a grilling session ended; the user must explicitly ask to create or update one.
+A PRD records one implementation phase. It is created only when the user explicitly asks to transfer a discussion into a new or existing PRD.
 
 ## Process
 
 1. Resolve the project and read its `requirements.md`.
-2. Identify whether the user requested a new PRD or named an existing PRD to update. If this is unclear, ask.
-3. Synthesize only the implementation decisions already agreed in the current conversation and relevant codebase evidence. Do not turn unresolved research into requirements or invent technical choices.
-4. Draft the proposed PRD, including outcome, scope, deliverables, implementation decisions, validation, dependencies, and non-goals.
-5. Show the target path and concise draft summary. Obtain approval before writing.
-6. For a new PRD, create `PRDs/YYYY-MM-DD-{slug}.md`. For an update, change only the selected PRD.
-7. Append one matching entry to `log.md`.
-8. Confirm that the project's Base will surface the PRD through its filters; repair the Base only with separate approval.
+2. Identify whether the user requested a new PRD or named an existing PRD to update. Ask if this is unclear.
+3. Inspect the relevant codebase when it materially clarifies the implementation boundary, interfaces, or validation approach.
+4. Synthesize only implementation decisions already agreed in the conversation and supported by relevant evidence. Do not turn unresolved research into a PRD or invent technical choices.
+5. Draft the PRD using this structure:
+   - outcome and problem context;
+   - scoped deliverables and non-goals;
+   - agreed functional and implementation requirements;
+   - validation and testing decisions;
+   - dependencies and constraints.
+6. Show the target path and a concise draft summary. Obtain approval before writing.
+7. For a new PRD, create `PRDs/YYYY-MM-DD-{slug}.md`; for an update, change only the selected PRD.
+8. Append one matching entry to `log.md`.
+9. Confirm that the project's Base will surface the PRD through its filters; repair the Base only with separate approval.
 
 Linear issue planning begins only when the user asks to use `to-issues`.

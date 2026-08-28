@@ -15,10 +15,11 @@ Read `/Users/ss60/.agents/skills/vault/references/project-schema.md` before acti
    - If none exists, ask whether to create it.
    - If several candidates are plausible, ask the user to choose.
    - Once resolved, propose the raw Linear project URL for `requirements.md`; write it and append a requirements log entry only after approval.
-3. Draft independently actionable implementation slices. Each should have a title, purpose, acceptance criteria, dependencies, and type (`AFK` or `HITL`) when that distinction is useful.
-4. Propose the milestone derived from the PRD and the issue breakdown. Grill the user on scope, granularity, dependencies, assignment, deadline, labels, priority, and cycle.
-5. Present the final Linear changes and obtain explicit approval.
-6. Create the approved milestone and issues in Linear, in dependency order.
-7. Report the resulting Linear links and identifiers to the user.
+3. Inspect the relevant codebase when it materially affects the issue boundary or acceptance criteria.
+4. Draft independently actionable slices. Prefer a narrow end-to-end slice over a horizontal layer split when that makes the outcome testable. Each proposed issue includes a title, purpose, acceptance criteria, dependencies, and type (`AFK` or `HITL`) when that distinction is useful.
+5. Present the milestone and breakdown. Grill the user on scope, granularity, dependencies, assignment, deadline, labels, priority, and cycle. Iterate until the user approves.
+6. Present the exact Linear changes and obtain explicit approval.
+7. Create the approved milestone and issues in dependency order.
+8. Report the resulting Linear links and identifiers.
 
 After creation, keep the Wiki record limited to the raw Linear project URL in project requirements. Individual issue details remain in Linear.
