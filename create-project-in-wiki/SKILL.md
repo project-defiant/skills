@@ -15,4 +15,3 @@ Read `/Users/ss60/.agents/skills/vault/references/project-schema.md` and `/Users
 6. Create the project files. Append the initial requirements-created entry to `log.md`.
 7. Validate the Base YAML and inspect its rendered views in Obsidian.
 
-Do not create a PRD, Linear project, milestone, or issue as part of project creation.
