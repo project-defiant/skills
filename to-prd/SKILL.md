@@ -1,88 +1,23 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a PRD and submit it as a GitHub issue. Use when user wants to create a PRD from the current context.
+description: Transfer an explicitly selected implementation discussion into a new or updated project PRD in the Obsidian Wiki. Use when the user asks to create or update a PRD from a grilling session.
 ---
 
-Turn the current conversation context and your codebase understanding into a PRD,
-then submit that PRD as a GitHub issue.
+# To PRD
 
-Do not interview the user. Synthesize from what is already known in the conversation
-and from the repository. Only ask the user something if issue creation is blocked by
-missing access or missing repository information.
+Read `/Users/ss60/.agents/skills/vault/references/project-schema.md` before acting.
+
+A PRD represents one implementation phase. It is not created merely because a grilling session ended; the user must explicitly ask to create or update one.
 
 ## Process
 
-1. Explore the repo to understand the current state of the codebase if you have not
-   already done so.
-2. Sketch the major modules that would need to be built or modified to implement the
-   feature. Prefer deep modules: simple, stable interfaces that hide meaningful
-   complexity and can be tested in isolation.
-3. Decide which modules should have tests written for them. Base this on risk,
-   surface area, and whether the behavior can be validated externally.
-4. Write the PRD using the template below.
-5. Submit the PRD as a GitHub issue in the current repository.
+1. Resolve the project and read its `requirements.md`.
+2. Identify whether the user requested a new PRD or named an existing PRD to update. If this is unclear, ask.
+3. Synthesize only the implementation decisions already agreed in the current conversation and relevant codebase evidence. Do not turn unresolved research into requirements or invent technical choices.
+4. Draft the proposed PRD, including outcome, scope, deliverables, implementation decisions, validation, dependencies, and non-goals.
+5. Show the target path and concise draft summary. Obtain approval before writing.
+6. For a new PRD, create `PRDs/YYYY-MM-DD-{slug}.md`. For an update, change only the selected PRD.
+7. Append one matching entry to `log.md`.
+8. Confirm that the project's Base will surface the PRD through its filters; repair the Base only with separate approval.
 
-When you write the PRD:
-
-- Write from the user's perspective.
-- Be concrete and exhaustive.
-- Make the user stories extremely extensive and cover the full feature surface,
-  edge cases, failure cases, and operational flows.
-- Include implementation and testing decisions that follow from the current
-  conversation and codebase state.
-- Do not include specific file paths or code snippets.
-- Do not invent decisions that conflict with the current conversation.
-
-When you submit the GitHub issue:
-
-- Use a clear title that describes the feature or PRD topic.
-- Use the PRD body as the issue body.
-- If issue creation fails, surface the failure plainly instead of pretending it worked.
-
-Use this template exactly:
-
-## Problem Statement
-
-The problem that the user is facing, from the user's perspective.
-
-## Solution
-
-The solution to the problem, from the user's perspective.
-
-## User Stories
-
-A LONG, numbered list of user stories. Each user story should be in the format of:
-
-1. As an <actor>, I want a <feature>, so that <benefit>
-
-This list of user stories should be extremely extensive and cover all aspects of the feature.
-
-## Implementation Decisions
-
-A list of implementation decisions that were made. This can include:
-
-- The modules that will be built/modified
-- The interfaces of those modules that will be modified
-- Technical clarifications from the developer
-- Architectural decisions
-- Schema changes
-- API contracts
-- Specific interactions
-
-Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
-
-## Testing Decisions
-
-A list of testing decisions that were made. Include:
-
-- A description of what makes a good test (only test external behavior, not implementation details)
-- Which modules will be tested
-- Prior art for the tests (i.e. similar types of tests in the codebase)
-
-## Out of Scope
-
-A description of the things that are out of scope for this PRD.
-
-## Further Notes
-
-Any further notes about the feature.
+Linear issue planning begins only when the user asks to use `to-issues`.
