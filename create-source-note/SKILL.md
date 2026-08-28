@@ -1,6 +1,6 @@
 ---
 name: create-source-note
-description: Interactively review a publication passage by passage and create a user-directed Obsidian source note with PDF annotation links. Use when the user asks to review a publication in the Wiki or on the web.
+description: Interactively review a publication. Use when the user asks to review a publication in the Wiki or on the web.
 ---
 
 # Create source note
