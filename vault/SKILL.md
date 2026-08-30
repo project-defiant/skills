@@ -27,7 +27,7 @@ $SZYMON_WIKI/
 ├── Topic/{topic}.md
 └── Projects/{Project}/
     ├── log.md                     # project chronological
-    ├── requirements.md            # project requirements file
+    ├── requirements.md             # project requirements and Linear mapping
     ├── PRD/                       # project PRD files
     │   ├── {date}-{prd name}.md
     └── meetings.md                # project meetings
@@ -83,6 +83,21 @@ assume answer, always ask
 - **Topic notes**: written to `$SZYMON_WIKI/topic-notes`
 - **Source notes**: written to `$SZYMON_WIKI/source-notes`
 - **Log file**: written to `$SZYMON_WIKI/projects/${project}/log.md`
+
+### Linear project mapping
+
+The WIKI is the source of truth for project intent and requirements. Linear is the source of truth for execution state.
+
+Each WIKI project must store its Linear relationship in `Projects/{Project}/requirements.md` frontmatter when linked:
+
+```yaml
+linear_project_id: <Linear project ID>
+linear_project_url: <Linear project URL>
+```
+
+The linked Linear project must store the absolute URL of the WIKI project in its project URL field. The WIKI skill does not mirror Linear issue status, assignees, priorities, milestones, deadlines, or comments back into project notes.
+
+When resolving a mapping, use `linear_project_id` first. If it is absent, search by exact project name as a discovery fallback. If multiple Linear projects are possible matches, ask the user to select one before linking or changing anything.
 
 ## Project routing (context-inference + confirm)
 

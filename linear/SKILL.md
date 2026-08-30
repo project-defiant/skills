@@ -17,12 +17,19 @@ Follow the notion, that if the answer is ambiguous can cause misunderstanding, a
 
 ## Main responsibility
 
-There are two locations, where we host the projects:
+There are two locations where project work is hosted, with deliberately different ownership:
 
-1. WIKI - project description, requirements and PRD files (single source of truth about the project)
-2. Linear - project implementation details (single source of truth about issues linked to projects and alined PRDs to milestones)
+1. WIKI — project identity, intent, requirements, PRDs, meeting notes, and other project knowledge. The WIKI is the source of truth for project intent.
+2. Linear — execution objects such as issues, milestones, status, assignees, priorities, estimates, and deadlines. Linear is the source of truth for execution state.
 
-Your task is to do the bookkeeping and ensure that the WIKI projects are in sync with the linear projects.
+This skill maintains the relationship between the two systems. It does not mirror all fields or automatically copy Linear execution updates back into the WIKI.
+
+The canonical relationship is recorded in both places:
+
+- Every linked Linear project must contain the WIKI project URL in its project URL field.
+- Every linked WIKI project must record the Linear project ID and Linear project URL in its project metadata.
+
+Use the stored Linear project ID as the authoritative mapping. Use exact project-name matching only as a discovery fallback; if more than one candidate matches, stop and ask the user to choose.
 
 ## Mode dispatch
 
@@ -42,7 +49,9 @@ Use following modes when accessing/editing linear project boards.
 
 - Always first search for project in linear before attempting to create a new project
 - If the link between WIKI project and listed linear projects is not obvious, ask user for conformation what is correct project
-- Linear project shall have a link to the wiki project (relative path from the `$SZYMON_WIKI` to the project)
+- Linear project shall have the absolute WIKI project URL in its project URL field
+- The WIKI project shall record the Linear project ID and URL in its project metadata
+- “Sync project” means establish or repair this relationship and required project metadata; it is not bidirectional field synchronization
 - Whenever the project in WIKI is missing a linear project, ask user if we should create a linear project for that WIKI project
 - Ensure that the linear project exist with sync to the WIKI projects, use `../vault` skills to reference the WIKI.
 - When finished grilling session with user and filled a PRD document under WIKI's project, ask user if they want to transfer the knowledge from PRD to linear issues.
