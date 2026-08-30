@@ -1,15 +1,13 @@
 ---
 name: linear
-description: "Managing Linear issues, projects, and milestones. Use when working with Linear tasks, creating issues, updating status, querying projects and milestones."
+description: "Manage Linear projects, milestones, and issues through the connected Linear connector. Use when creating, listing, reading, updating, or assigning Linear projects, milestones, and issues."
 ---
 
 # linear - issue and task management on projects
 
 ## Prerequisites
 
-- `$SZYMON_WIKI` must be exported. If unset STOP and tell the user:
-  > vault skill requires `$SZYMON_WIKI` to be exported. Set it to the wiki root (e.g. `/Users/ss60/Documents/v/Wiki`) and retry.
-- Prefer `ripgrep` (`rg`); fall back to `grep -r` if absent.
+- The Linear connector must be installed, connected, and authenticated. If it is unavailable, stop and tell the user that the Linear connector is required before using this skill.
 
 ## Better ask then regret
 
@@ -17,44 +15,33 @@ Follow the notion, that if the answer is ambiguous can cause misunderstanding, a
 
 ## Main responsibility
 
-There are two locations where project work is hosted, with deliberately different ownership:
-
-1. WIKI — project identity, intent, requirements, PRDs, meeting notes, and other project knowledge. The WIKI is the source of truth for project intent.
-2. Linear — execution objects such as issues, milestones, status, assignees, priorities, estimates, and deadlines. Linear is the source of truth for execution state.
-
-This skill maintains the relationship between the two systems. It does not mirror all fields or automatically copy Linear execution updates back into the WIKI.
-
-The canonical relationship is recorded in both places:
-
-- Every linked Linear project must contain the WIKI project URL in its project URL field.
-- Every linked WIKI project must record the Linear project ID and Linear project URL in its project metadata.
-
-Use the stored Linear project ID as the authoritative mapping. Use exact project-name matching only as a discovery fallback; if more than one candidate matches, stop and ask the user to choose.
+This skill manages Linear projects, milestones, and issues. Workflows orchestrate user interaction; reference files describe the atomic Linear operations they invoke.
 
 ## Mode dispatch
 
 Use following modes when accessing/editing linear project boards.
 
 | Intent (triggers) | mode | reference |
-| "Init / create a project in the linear" | create-project(project_name, link_to_wiki_project) | `references/project/create_project.md` |
-| "List available projects in the linear" | list-projects() | `references/project/list_project.md` |
-| "Query project in the linear" | query-project(project_name) | `references/project/query_project.md` |
-| "Sync project between linear and WIKI" | sync-project(project_name, link_to_wiki_project) | `references/project/sync_project.md` |
-| "Create a milestone in the linear" | create-milestone(project_name, milestone_name, content) | `references/milestone/create_milestone.md` |
-| "Assign issue to milestone" | issue-to-milestone(project_name, milestone_name, issue_id) | `references/milestone/issue_to_milestone.md` |
-| "Create issue in project" | issue-to-project(project_name, issue_id, content) | `references/issue/create_issue.md` |
-| "Update issue in project" | update-issue(project_name, issue_id, content) | `references/issue/update_issue.md` |
+| "Create a project in Linear" | create-project(name, content) | `references/project/create_project.md` |
+| "List available projects in Linear" | list-projects() | `references/project/list_project.md` |
+| "Get a project in Linear" | get-project(project) | `references/project/query_project.md` |
+| "List milestones in a project" | list-milestones(project) | `references/milestone/list_milestones.md` |
+| "Get a milestone in a project" | get-milestone(project, milestone) | `references/milestone/read_milestone.md` |
+| "Create a milestone in a project" | create-milestone(project, name, content?, targetDate?) | `references/milestone/create_milestone.md` |
+| "Read an issue in a project" | read-issue(project, issue) | `references/issue/read_issue.md` |
+| "List issues in a project" | list-issues(project) | `references/issue/list_issues.md` |
+| "List issue statuses for a team" | list-issue-statuses(team) | `references/issue/list_statuses.md` |
+| "Assign an issue to a milestone" | issue-to-milestone(project, milestone, issue) | `references/milestone/issue_to_milestone.md` |
+| "Create an issue in a project" | create-issue(project, title, content?, milestone?, dueDate?, priority?, status?) | `references/issue/create_issue.md` |
+| "Update an issue in a project" | update-issue(project, issue, changes) | `references/issue/update_issue.md` |
 
 ## Shared conventions
 
-- Always first search for project in linear before attempting to create a new project
-- If the link between WIKI project and listed linear projects is not obvious, ask user for conformation what is correct project
-- Linear project shall have the absolute WIKI project URL in its project URL field
-- The WIKI project shall record the Linear project ID and URL in its project metadata
-- “Sync project” means establish or repair this relationship and required project metadata; it is not bidirectional field synchronization
-- Whenever the project in WIKI is missing a linear project, ask user if we should create a linear project for that WIKI project
-- Ensure that the linear project exist with sync to the WIKI projects, use `../vault` skills to reference the WIKI.
-- When finished grilling session with user and filled a PRD document under WIKI's project, ask user if they want to transfer the knowledge from PRD to linear issues.
+- Always use the workflow mode when a user asks to create or list projects.
+- A project name and brief description may come from conversation context or direct user input.
+- A project creation requires user confirmation before the atomic create operation is invoked.
+- The project lead is always Szymon Szyszkowski.
+- Use the `Szymon` team by default when creating a project; do not ask the user to select a team.
 - Ensure that linear issues are filled completely
   - responsible user
   - deadline
@@ -65,3 +52,150 @@ Use following modes when accessing/editing linear project boards.
 - ALWAYS verify with the user the issue before you write it into linear and iterate until user approves the transfer or stop when user asks you not to put the issue to the linear
 - ALWAYS after transferring all issues from a PRD document to linear, return to the user the full list of links to the newly created issues, so they can verify them directly.
 - NEVER start the transfer or do any changes to the issues without user explicit permissions
+
+## Project workflows
+
+### Create project workflow
+
+Use when the user asks to create a new Linear project.
+
+```text
+CREATE PROJECT WORKFLOW(name, content):
+  confirm-user(name, content)
+  projects = list-projects()
+  if name in projects:
+     notify-user("project exists")
+  else:
+      create-project(name, content)
+```
+
+### List projects workflow
+
+Use when the user asks to see available open Linear projects.
+
+```text
+LIST PROJECTS WORKFLOW():
+  list-projects()
+```
+
+### Create milestone workflow
+
+Use when the user asks to create a milestone in an existing Linear project.
+
+```text
+CREATE MILESTONE WORKFLOW(project, name, content?, targetDate?):
+  project = get-project(project)
+
+  if project does not exist:
+    notify-user("project does not exist")
+    stop
+
+  milestones = list-milestones(project)
+
+  if name in milestones:
+    notify-user("milestone exists")
+    stop
+
+  confirm-user(project, name, content?, targetDate?)
+  create-milestone(project, name, content?, targetDate?)
+```
+
+### Issue-to-milestone workflow
+
+Use when the user asks to assign an existing Linear issue to an existing project milestone.
+
+```text
+ISSUE TO MILESTONE WORKFLOW(project, milestone, issue):
+  project = get-project(project)
+
+  if project does not exist:
+    notify-user("project does not exist")
+    stop
+
+  milestone = get-milestone(project, milestone)
+
+  if milestone does not exist:
+    notify-user("milestone does not exist")
+    stop
+
+  issue = read-issue(project, issue)
+
+  if issue does not exist:
+    notify-user("issue does not exist")
+    stop
+
+  confirm-user(project, milestone, issue)
+  issue-to-milestone(issue, milestone)
+```
+
+### Create issue workflow
+
+Use when the user asks to create a new issue in an existing Linear project.
+
+```text
+CREATE ISSUE WORKFLOW(project, title, content?, milestone?, dueDate?, priority?, status?):
+  project = get-project(project)
+
+  if project does not exist:
+    notify-user("project does not exist")
+    stop
+
+  if milestone is provided:
+    milestone = get-milestone(project, milestone)
+
+    if milestone does not exist:
+      notify-user("milestone does not exist")
+      stop
+
+  issues = list-issues(project)
+
+  if title in issues:
+    notify-user("issue exists")
+    stop
+
+  if status is provided:
+    statuses = list-issue-statuses("Szymon")
+    status = status from statuses
+
+  confirm-user(project, title, content?, milestone?, dueDate?, priority?, status?)
+  create-issue(project, title, content?, milestone?, dueDate?, priority?, status?)
+```
+
+### Read issue workflow
+
+Use when the user asks to inspect an existing issue in a specific Linear project.
+
+```text
+READ ISSUE WORKFLOW(project, issue):
+  project = get-project(project)
+
+  if project does not exist:
+    notify-user("project does not exist")
+    stop
+
+  issues = list-issues(project)
+  issue = find issue in issues
+
+  if issue does not exist:
+    notify-user("issue does not exist")
+    stop
+
+  return issue
+```
+
+### Update issue workflow
+
+Use when the user asks to change an existing issue in a specific Linear project.
+
+```text
+UPDATE ISSUE WORKFLOW(project, issue, changes):
+  issue = read-issue(project, issue)
+
+  if issue does not exist:
+    stop
+
+  confirm-user(issue, changes)
+  update-issue(issue, changes)
+```
+
+`create-project(name, content)` and `list-projects()` in the workflows are atomic operations defined in the referenced files. The workflows contain the user-facing decision logic; the reference files contain only the Linear operation details.
