@@ -12,6 +12,7 @@ Invoke:
 ```text
 mcp__codex_apps__linear_save_issue({
   id: issue.id,
+  project: project,
   milestone: milestone.id
 })
 ```

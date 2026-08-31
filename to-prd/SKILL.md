@@ -1,13 +1,14 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a PRD and submit it to Wiki. Use when user wants to create a PRD from the current context.
+description: Turn the current conversation context into a new immutable PRD in an Obsidian Wiki. Use when user wants to create a PRD from the current context and provides an explicit vault and project.
 ---
 
 Turn the current conversation context and your codebase understanding into a PRD,
-then submit that PRD as a document to the Szymon WIKI.
+then pass it to the existing Vault `create-prd` workflow for the explicitly selected
+project and vault.
 
 Do not interview the user. Synthesize from what is already known in the conversation
-and from the repository. Only ask the user something if issue creation is blocked by
+and from the repository. Only ask the user something if PRD creation is blocked by
 missing access or missing repository information.
 
 ## Process
@@ -20,8 +21,9 @@ missing access or missing repository information.
 3. Decide which modules should have tests written for them. Base this on risk,
    surface area, and whether the behavior can be validated externally.
 4. Write the PRD using the template below.
-5. Find the WIKI, use vault skills to explore how to add a document to the WIKI
-6. Add document to WIKI.
+5. Require an explicit `vault=<name|id>` and project name from context or the user.
+6. Choose the best-fitting PRD name, normalize it for the filename, and pass the
+   synthesized PRD to the existing Vault `create-prd` workflow.
 
 When you write the PRD:
 
@@ -34,11 +36,12 @@ When you write the PRD:
 - Do not include specific file paths or code snippets.
 - Do not invent decisions that conflict with the current conversation.
 
-When you write to the WIKI:
+When you submit the PRD through the Vault workflow:
 
 - Use a clear title that describes the feature or PRD topic.
-- Use the PRD body as the issue body.
-- If issue creation fails, surface the failure plainly instead of pretending it worked.
+- Create a new immutable PRD under the project's `PRD/` directory.
+- Do not update an existing PRD or append to `log.md`.
+- If PRD creation fails, surface the failure plainly instead of pretending it worked.
 
 Use this template exactly:
 

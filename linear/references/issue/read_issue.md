@@ -7,4 +7,12 @@ description: Read one Linear issue within a project.
 
 Atomic operation used by the `READ ISSUE WORKFLOW` in `linear/SKILL.md`.
 
-Invoke `mcp__codex_apps__linear_list_issues` for the resolved project and locate the requested issue by its ID or identifier. Return the issue record. Do not notify the user or make workflow decisions.
+Invoke:
+
+```text
+mcp__codex_apps__linear_get_issue({
+  id: issue
+})
+```
+
+Return the issue record. The workflow resolves the project before this task is called; do not notify the user or make workflow decisions.

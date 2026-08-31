@@ -14,6 +14,17 @@ Atomic operation used by the `CREATE PROJECT WORKFLOW` in `linear/SKILL.md`.
 
 ## Operation
 
+Invoke:
+
+```text
+mcp__codex_apps__linear_save_project({
+  name: name,
+  description: content,
+  lead: "Szymon Szyszkowski",
+  addTeams: ["Szymon"]
+})
+```
+
 Create exactly one Linear project using the supplied `name` and `content` as its description.
 
 - Set the project lead to Szymon Szyszkowski.

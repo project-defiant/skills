@@ -32,7 +32,7 @@ Use following modes when accessing/editing linear project boards.
 | "List issues in a project" | list-issues(project) | `references/issue/list_issues.md` |
 | "List issue statuses for a team" | list-issue-statuses(team) | `references/issue/list_statuses.md` |
 | "Assign an issue to a milestone" | issue-to-milestone(project, milestone, issue) | `references/milestone/issue_to_milestone.md` |
-| "Create an issue in a project" | create-issue(project, title, content?, milestone?, dueDate?, priority?, status?) | `references/issue/create_issue.md` |
+| "Create an issue in a project" | create-issue(project, title, content?, milestone?, dueDate?, priority?, status?, blockedBy?, blocks?) | `references/issue/create_issue.md` |
 | "Update an issue in a project" | update-issue(project, issue, changes) | `references/issue/update_issue.md` |
 
 ## Shared conventions
@@ -42,13 +42,7 @@ Use following modes when accessing/editing linear project boards.
 - A project creation requires user confirmation before the atomic create operation is invoked.
 - The project lead is always Szymon Szyszkowski.
 - Use the `Szymon` team by default when creating a project; do not ask the user to select a team.
-- Ensure that linear issues are filled completely
-  - responsible user
-  - deadline
-  - milestone
-  - project
-  - priority
-  - status
+- Every issue is assigned to Szymon Szyszkowski and a project. Milestone, deadline, priority, and status are optional and are set when supplied or selected by the user.
 - ALWAYS verify with the user the issue before you write it into linear and iterate until user approves the transfer or stop when user asks you not to put the issue to the linear
 - ALWAYS after transferring all issues from a PRD document to linear, return to the user the full list of links to the newly created issues, so they can verify them directly.
 - NEVER start the transfer or do any changes to the issues without user explicit permissions
@@ -61,12 +55,17 @@ Use when the user asks to create a new Linear project.
 
 ```text
 CREATE PROJECT WORKFLOW(name, content):
-  confirm-user(name, content)
+  confirmed = confirm-user("Create Linear project " + name + " with description: " + content)
+  if confirmed.confirmed is false:
+    STOP
+
   projects = list-projects()
-  if name in projects:
-     notify-user("project exists")
+  if any project.name == name in projects:
+    notify-user("project exists")
+    STOP
   else:
-      create-project(name, content)
+    result = create-project(name, content)
+    return result
 ```
 
 ### List projects workflow
@@ -90,14 +89,18 @@ CREATE MILESTONE WORKFLOW(project, name, content?, targetDate?):
     notify-user("project does not exist")
     stop
 
-  milestones = list-milestones(project)
+  milestones = list-milestones(project.name)
 
-  if name in milestones:
+  if any milestone.name == name in milestones:
     notify-user("milestone exists")
     stop
 
-  confirm-user(project, name, content?, targetDate?)
-  create-milestone(project, name, content?, targetDate?)
+  confirmed = confirm-user("Create milestone " + name + " in " + project.name)
+  if confirmed.confirmed is false:
+    stop
+
+  result = create-milestone(project.name, name, content?, targetDate?)
+  return result
 ```
 
 ### Issue-to-milestone workflow
@@ -112,20 +115,24 @@ ISSUE TO MILESTONE WORKFLOW(project, milestone, issue):
     notify-user("project does not exist")
     stop
 
-  milestone = get-milestone(project, milestone)
+  milestone = get-milestone(project.name, milestone)
 
   if milestone does not exist:
     notify-user("milestone does not exist")
     stop
 
-  issue = read-issue(project, issue)
+  issue = read-issue(project.name, issue)
 
   if issue does not exist:
     notify-user("issue does not exist")
     stop
 
-  confirm-user(project, milestone, issue)
-  issue-to-milestone(issue, milestone)
+  confirmed = confirm-user("Assign issue " + issue.title + " to milestone " + milestone.name)
+  if confirmed.confirmed is false:
+    stop
+
+  result = issue-to-milestone(project.name, milestone, issue)
+  return result
 ```
 
 ### Create issue workflow
@@ -133,7 +140,7 @@ ISSUE TO MILESTONE WORKFLOW(project, milestone, issue):
 Use when the user asks to create a new issue in an existing Linear project.
 
 ```text
-CREATE ISSUE WORKFLOW(project, title, content?, milestone?, dueDate?, priority?, status?):
+CREATE ISSUE WORKFLOW(project, title, content?, milestone?, dueDate?, priority?, status?, blockedBy?, blocks?):
   project = get-project(project)
 
   if project does not exist:
@@ -141,15 +148,15 @@ CREATE ISSUE WORKFLOW(project, title, content?, milestone?, dueDate?, priority?,
     stop
 
   if milestone is provided:
-    milestone = get-milestone(project, milestone)
+    milestone = get-milestone(project.name, milestone)
 
     if milestone does not exist:
       notify-user("milestone does not exist")
       stop
 
-  issues = list-issues(project)
+  issues = list-issues(project.name)
 
-  if title in issues:
+  if any issue.title == title in issues:
     notify-user("issue exists")
     stop
 
@@ -157,8 +164,16 @@ CREATE ISSUE WORKFLOW(project, title, content?, milestone?, dueDate?, priority?,
     statuses = list-issue-statuses("Szymon")
     status = status from statuses
 
-  confirm-user(project, title, content?, milestone?, dueDate?, priority?, status?)
-  create-issue(project, title, content?, milestone?, dueDate?, priority?, status?)
+  confirmed = confirm-user(
+    "Create issue " + title + " in " + project.name +
+    " with content and fields: " +
+    {content, milestone, dueDate, priority, status, blockedBy, blocks}
+  )
+  if confirmed.confirmed is false:
+    stop
+
+  result = create-issue(project.name, title, content?, milestone?, dueDate?, priority?, status?, blockedBy?, blocks?)
+  return result
 ```
 
 ### Read issue workflow
@@ -173,7 +188,7 @@ READ ISSUE WORKFLOW(project, issue):
     notify-user("project does not exist")
     stop
 
-  issues = list-issues(project)
+  issues = list-issues(project.name)
   issue = find issue in issues
 
   if issue does not exist:
@@ -194,8 +209,12 @@ UPDATE ISSUE WORKFLOW(project, issue, changes):
   if issue does not exist:
     stop
 
-  confirm-user(issue, changes)
-  update-issue(issue, changes)
+  confirmed = confirm-user("Update issue " + issue.title + " with: " + changes)
+  if confirmed.confirmed is false:
+    stop
+
+  result = update-issue(project.name, issue, changes)
+  return result
 ```
 
 `create-project(name, content)` and `list-projects()` in the workflows are atomic operations defined in the referenced files. The workflows contain the user-facing decision logic; the reference files contain only the Linear operation details.
