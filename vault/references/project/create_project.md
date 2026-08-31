@@ -23,13 +23,24 @@ create-project(vault, project_name)
 
 ## Task
 
-Create these three Markdown notes with exactly the initial content defined by `project_structure.md`:
+Create these three Markdown notes as a scaffold:
 
 1. `Projects/{project_name}/log.md`
 2. `Projects/{project_name}/requirements.md`
 3. `Projects/{project_name}/meetings.md`
 
-Use three separate Obsidian CLI `create` actions, each with `vault=<name|id>` first. Use the current local date for `created` in `requirements.md`.
+Use three separate Obsidian CLI `create` actions, each with `vault=<name|id>` first. Create `log.md` and `meetings.md` with blank content. Create `requirements.md` with only this frontmatter, using the current local date for `created`:
+
+```yaml
+---
+type: project
+created: YYYY-MM-DD
+tags:
+  - project
+---
+```
+
+Do not add Markdown headings, dated entries, or a `## Decisions` section. Do not create any other files or folders.
 
 Do not create an empty `PRD/` folder.
 

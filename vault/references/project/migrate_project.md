@@ -36,7 +36,7 @@ migrate-project(
 
 1. Transform `source_content` according to `migration_plan`. Do not preserve, remove, or reshape material based on an unapproved assumption.
 2. Ensure the resulting project conforms exactly to `project_structure.md`.
-3. Create the required initial notes with their canonical headers:
+3. Create the required initial notes with the canonical scaffold:
 
    ```text
    Projects/{project_name}/log.md
@@ -53,7 +53,7 @@ migrate-project(
      content="$destination_content"
    ```
 
-Preserve the canonical headers and required project metadata. Do not overwrite existing files or create files outside the canonical project structure.
+Preserve the canonical scaffold and required project metadata. The scaffold must contain blank `log.md` and `meetings.md` files, and `requirements.md` with frontmatter only. Do not add requirements headings, Decisions, or dated entries during migration. Do not overwrite existing files or create files outside the canonical project structure.
 
 ## Result
 

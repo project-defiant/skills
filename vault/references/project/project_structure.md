@@ -16,6 +16,7 @@ Projects/{Project}/
 ## Creation rules
 
 - `log.md`, `requirements.md`, and `meetings.md` are created when the project is created.
+- The three scaffold files are created without Markdown headings. `requirements.md` contains only its project frontmatter.
 - `PRD/` is materialized when the first PRD is created; do not create an empty PRD folder.
 - PRD filenames use `YYYY-MM-DD-{prd-name}.md`.
 - `{Project}` is the exact project folder name supplied or confirmed by the user.
@@ -23,15 +24,7 @@ Projects/{Project}/
 
 ## File responsibilities
 
-- `log.md`: chronological project updates. It starts with:
-
-  ```markdown
-  # Project Log
-
-  ## Updates
-  ```
-
-  Updates are appended in place under `## Updates`.
+- `log.md`: chronological project updates. The file is blank when scaffolded. A later workflow may add the `# Project Log` and `## Updates` structure once before appending updates.
 - `requirements.md`: durable project requirements and, when applicable, Linear project mapping frontmatter. It starts with:
 
   ```yaml
@@ -41,30 +34,16 @@ Projects/{Project}/
   tags:
     - project
   ---
-
-  # Requirements
-
-  ## Context
-
-  ## Requirements
-
-  ## Decisions
   ```
+
+  The file has no Markdown body when scaffolded. A later workflow may add `## Context` and `## Requirements` once before adding content. It must never contain a `## Decisions` section or dated entries.
 
   `linear_project` is added only when the project is linked to Linear:
 
   ```yaml
   linear_project: https://linear.app/example/project/project-name
   ```
-- `meetings.md`: project-related meeting summaries. It starts with:
-
-  ```markdown
-  # Meetings
-
-  ## Summaries
-  ```
-
-  Summaries are appended in place under `## Summaries`.
+- `meetings.md`: project-related meeting summaries. The file is blank when scaffolded. A later workflow may add the `# Meetings` and `## Summaries` structure once before appending summaries.
 - `PRD/{date}-{prd-name}.md`: immutable project PRD documents. Each PRD starts with:
 
   ```markdown
@@ -100,4 +79,4 @@ Entries use dated headings:
 
 - `log.md` entries are added under `## Updates`.
 - `meetings.md` entries are added under `## Summaries` and must include the meeting date in the heading.
-- Decisions in `requirements.md` are added under `## Decisions` and must include the decision date in the heading.
+- `requirements.md` does not use dated entries.

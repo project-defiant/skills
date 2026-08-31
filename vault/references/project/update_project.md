@@ -15,7 +15,7 @@ update-project(vault, project, changes)
 ```json
 {
   "path": "Projects/Project Name/requirements.md",
-  "content": "\n## New requirement\n..."
+  "content": "\nNew requirement text..."
 }
 ```
 
@@ -28,6 +28,8 @@ update-project(vault, project, changes)
 - Obsidian CLI is available and Obsidian is running with CLI access enabled.
 - Use the explicit vault and never the active file.
 - Do not replace full note content or use `overwrite`.
+- `changes.content` must not contain frontmatter, a second frontmatter block, `# Requirements`, `## Decisions`, or dated `###` headings.
+- If the target requirements note has no body sections yet, the upstream workflow may include exactly one of `## Context` or `## Requirements` before the new content. If the section already exists, append body content only and do not repeat its header.
 
 ## Task
 
@@ -40,6 +42,8 @@ obsidian vault="$vault" append \
 ```
 
 Preserve all existing frontmatter, headers, and entries. Use `inline` only when explicitly requested by the caller.
+
+Never append a complete requirements template. Each structural header may occur at most once; `## Decisions` and dated entries are not permitted in `requirements.md`.
 
 ## Successful output
 

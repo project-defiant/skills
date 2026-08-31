@@ -1,15 +1,13 @@
 ---
-
 name: vault
 description: Manage a user's Obsidian LLM-wiki through Obsidian CLI workflows. Use when the user provides an explicit `vault=<name|id>` and requests project, requirements, PRD, meeting, source-note, or topic-note work.
-
 ---
 
 # vault - Obsidian LLM-wiki skill
 
 ## Prerequisites
 
-- The user must provide `vault=<name|id>` directly. Do not infer or use Obsidian's active vault.
+- The user must provide `vault=<name|id>` directly or use the `v` as the default vault. Do not infer or use Obsidian's active vault.
 - Obsidian CLI 1.12.7+ must be installed, and Obsidian must be running with CLI access enabled. If unavailable, STOP and tell the user that the Obsidian CLI and a CLI-enabled running Obsidian instance are required.
 - Every operation must pass the explicit `vault=<name|id>` first and use an exact vault-relative path.
 - Prefer `ripgrep` (`rg`); fall back to `grep -r` if absent.
