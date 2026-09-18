@@ -1,6 +1,6 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a new immutable PRD in an Obsidian Wiki. Use when user wants to create a PRD from the current context and provides an explicit vault and project.
+description: Turn the current conversation context into a new immutable PRD in an Obsidian Wiki. Use when the user wants to create a PRD from the current context and provides a project; resolve the vault from `$SZYMON_WIKI` when available.
 ---
 
 Turn the current conversation context and your codebase understanding into a PRD,
@@ -21,7 +21,7 @@ missing access or missing repository information.
 3. Decide which modules should have tests written for them. Base this on risk,
    surface area, and whether the behavior can be validated externally.
 4. Write the PRD using the template below.
-5. Require an explicit `vault=<name|id>` and project name from context or the user.
+5. Resolve the vault name from `basename($SZYMON_WIKI)` when available. If the variable is unavailable, ask the user explicitly for `vault=<name|id>`. Require the project name from context or the user.
 6. Choose the best-fitting PRD name, normalize it for the filename, and pass the
    synthesized PRD to the existing Vault `create-prd` workflow.
 

@@ -1,15 +1,18 @@
 ---
 name: vault
-description: Manage a user's Obsidian LLM-wiki through Obsidian CLI workflows. Use when the user provides an explicit `vault=<name|id>` and requests project, requirements, PRD, meeting, source-note, or topic-note work.
+description: Manage a user's Obsidian LLM-wiki through Obsidian CLI workflows, defaulting to the vault named by the basename of `$SZYMON_WIKI` and asking for a vault name only when that variable is unavailable.
 ---
 
 # vault - Obsidian LLM-wiki skill
 
 ## Prerequisites
 
-- The user must provide `vault=<name|id>` directly or use the `v` as the default vault. Do not infer or use Obsidian's active vault.
+- If `$SZYMON_WIKI` is defined, derive the default Obsidian vault name from its basename and do not ask the user for a vault name.
+- If `$SZYMON_WIKI` is unset or empty, ask the user explicitly for `vault=<name|id>` before continuing. Do not infer or use Obsidian's active vault.
 - Obsidian CLI 1.12.7+ must be installed, and Obsidian must be running with CLI access enabled. If unavailable, STOP and tell the user that the Obsidian CLI and a CLI-enabled running Obsidian instance are required.
-- Every operation must pass the explicit `vault=<name|id>` first and use an exact vault-relative path.
+- Every CLI operation must pass the resolved `vault=<name|id>` first and use an exact vault-relative path.
+
+The public workflow input is the project, PRD, note, or topic request; callers do not need to provide a vault argument when `$SZYMON_WIKI` is defined. Legacy workflow signatures and reference examples may retain an internal `vault` placeholder for the resolved CLI name.
 - Prefer `ripgrep` (`rg`); fall back to `grep -r` if absent.
 
 ## Better ask then regret
@@ -19,7 +22,7 @@ Follow the notion, that if the answer is ambiguous can cause misunderstanding, a
 ## Project structure
 
 Project structure in the vault is specified in `references/project/project_structure.md`.
-Project workflows accept a project name, resolve it to an exact `Projects/{Project}/` path through Obsidian CLI file listing, and only then read or mutate files.
+Project workflows accept a project name, resolve it to an exact `Projects/{Project}/` path through Obsidian CLI file listing, and only then read or mutate files. The CLI vault name comes from `basename($SZYMON_WIKI)` unless the variable is unavailable and the user supplies one explicitly.
 
 ```
 {vault}/
@@ -108,7 +111,7 @@ Modes that operate on a project must resolve one:
 3. If nothing inferable, **ask**: list existing folders under `Projects/` through Obsidian CLI and let the user pick.
 4. If the chosen project doesn't exist, run **create-project(project_name)** first.
 
-Resolution must use Obsidian CLI file listing with the explicit vault and an exact `Projects` folder scope. Do not access the filesystem through `$SZYMON_WIKI` or rely on the active vault.
+Resolution must use Obsidian CLI file listing with the resolved vault name and an exact `Projects` folder scope. The separate `obsidian-by-file` fallback may access `$SZYMON_WIKI` only when CLI routing selects it; do not rely on the active vault.
 
 ## Notes
 

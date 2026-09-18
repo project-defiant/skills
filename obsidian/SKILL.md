@@ -7,6 +7,19 @@ description: Provides atomic Obsidian CLI operations for explicitly targeted Mar
 
 Use exactly one mode from the dispatcher table. This skill is a primitive layer: it does not discover targets, choose files, sequence commands, validate content, or ask for permission.
 
+## Default vault resolution
+
+When `$SZYMON_WIKI` is defined, use the basename of that path as the default Obsidian CLI vault name. Do not ask the user for a vault name in that case.
+
+```bash
+vault_name="${SZYMON_WIKI##*/}"
+obsidian vault="$vault_name" read path="Projects/Plan.md"
+```
+
+If `$SZYMON_WIKI` is unset or empty, ask the user explicitly for the vault name before invoking the CLI. Never infer the active vault.
+
+Reference files may use `$vault` as an internal placeholder. The caller must resolve it from `basename($SZYMON_WIKI)` first, or from the user's explicit answer when the environment variable is unavailable.
+
 Minimal invocation:
 
 ```bash
@@ -15,7 +28,7 @@ obsidian vault="My Vault" read path="Projects/Plan.md"
 
 ## Global constraints
 
-- Put `vault=<name>` or `vault=<id>` first in every command.
+- Put the resolved `vault=<name>` or `vault=<id>` first in every command. Prefer `basename($SZYMON_WIKI)` as the default vault name; ask explicitly only when `$SZYMON_WIKI` is unavailable.
 - Never use the active vault or active file implicitly.
 - Use exact vault-relative paths for file targets.
 - The upstream workflow must establish existence before mutation: create requires absent; all other mutations require present.
