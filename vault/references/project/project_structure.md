@@ -25,7 +25,7 @@ Projects/{Project}/
 ## File responsibilities
 
 - `log.md`: chronological project updates. The file is blank when scaffolded. A later workflow may add the `# Project Log` and `## Updates` structure once before appending updates.
-- `requirements.md`: durable project requirements and, when applicable, Linear project mapping frontmatter. It starts with:
+- `requirements.md`: durable project requirements. It starts with:
 
   ```yaml
   ---
@@ -38,11 +38,6 @@ Projects/{Project}/
 
   The file has no Markdown body when scaffolded. A later workflow may add `## Context` and `## Requirements` once before adding content. It must never contain a `## Decisions` section or dated entries.
 
-  `linear_project` is added only when the project is linked to Linear:
-
-  ```yaml
-  linear_project: https://linear.app/example/project/project-name
-  ```
 - `meetings.md`: project-related meeting summaries. The file is blank when scaffolded. A later workflow may add the `# Meetings` and `## Summaries` structure once before appending summaries.
 - `PRD/{date}-{prd-name}.md`: immutable project PRD documents. Each PRD starts with:
 

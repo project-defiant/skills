@@ -30,7 +30,7 @@ Project workflows accept a project name, resolve it to an exact `Projects/{Proje
 ├── Topic/{topic}.md
 └── Projects/{Project}/
     ├── log.md                     # project chronological
-    ├── requirements.md             # project requirements and Linear mapping
+    ├── requirements.md             # project requirements
     ├── PRD/                       # project PRD files
     │   ├── {date}-{prd name}.md
     └── meetings.md                # project meetings
@@ -53,7 +53,6 @@ Example
 | "Init / scaffold / create a project in the wiki" | create-project(vault, project_name) | `references/project/create_project.md` |
 | "Create project requirements file in project folder" | create-project-requirements(vault, project_name, content) | `references/project/create_requirements.md` |
 | "Find existing project in the wiki" | find-project(vault, project_name) | `references/project/find_project.md` |
-| "Link Wiki project to Linear project" | link-linear(vault, project_name, linear_project) | `references/project/link_linear_project.md` |
 | "List all projects in the wiki" | list-projects(vault) | `references/project/list_projects.md` |
 | "Migrate existing project structure to `Project structure`" | migrate-project(vault, source_path, project_name) | `references/project/migrate_project.md` |
 | "Summarize work done over project" | summarize-project(vault, project_name) | `references/project/summarize_project.md` |
@@ -87,20 +86,6 @@ assume answer, always ask
 - **Topic notes**: written to `Topic/{topic}.md`.
 - **Source notes**: written to `Source/{source_note}.md`.
 - **Log file**: written to `Projects/{project}/log.md`.
-
-### Linear project mapping
-
-The WIKI is the source of truth for project intent and requirements. Linear is the source of truth for execution state.
-
-When linked, each WIKI project stores one clickable Linear project URL in `Projects/{Project}/requirements.md` frontmatter:
-
-```yaml
-linear_project: https://linear.app/example/project/project-name
-```
-
-The `link-linear` operation writes this property to the Wiki only. It does not modify the Linear project or require a Wiki URL. The WIKI skill does not mirror Linear issue status, assignees, priorities, milestones, deadlines, or comments back into project notes.
-
-When resolving a mapping, use `linear_project` first. If it is absent, search by exact project name as a discovery fallback. If multiple Linear projects are possible matches, ask the user to select one before linking or changing anything.
 
 ## Project routing (context-inference + confirm)
 
@@ -212,40 +197,6 @@ UPDATE PROJECT WORKFLOW(vault, project_name, changes):
     STOP
 
   result = update-project(vault, project, changes)
-
-  return result
-```
-
-### Link Wiki project to Linear workflow
-
-Use when the user asks to link an existing Wiki project to an explicitly identified Linear project.
-
-```
-LINK LINEAR WORKFLOW(vault, project_name, linear_project):
-  wiki_project = find-project(vault, project_name)
-
-  if wiki_project does not exist:
-    notify-user("project does not exist")
-    STOP
-
-  linear_project = linear.get-project(linear_project)
-
-  if linear_project does not exist:
-    notify-user("Linear project does not exist")
-    STOP
-
-  confirmed = confirm-user(
-    "Link Wiki project {project_name} to Linear project {linear_project.name}"
-  )
-
-  if confirmed.confirmed is false:
-    STOP
-
-  result = link-linear(
-    vault,
-    wiki_project,
-    linear_project.url
-  )
 
   return result
 ```
