@@ -3,3 +3,6 @@ node_modules
 
 # Private/local skills, not intended for the public skills repo
 opentargets-cost-breakdown/
+
+# macOS
+.DS_Store
