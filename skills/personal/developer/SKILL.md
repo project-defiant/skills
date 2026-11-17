@@ -7,23 +7,8 @@ description: Develop or implement new functionality, fix bug or answer user ques
 
 # Development flow
 
-1. When working in local repository always start from local worktree as a base to novel developments.
-2. Ask user how the worktree shall be named. Names shall include following prefixes
-
-- `feature` -> new feature development
-- `fix` -> fixing existing bug
-- `chore` -> typo fixes, lining, formatting, README changes
-- `refactor` -> refactoring
-- `build` -> updates to dockerfile, build process, Makefile
-- `ci` -> update to CI/CD pipeline, github actions
-
-Example:
-
-Given we work on new feature you shall create new worktree in `.worktree/feature/new-stuff` with the name `feature/new-stuff` from the `main` branch
-
-```{bash}
-git worktree add .worktree/feature/new-stuff -b feature/new-stuff main
-```
+1. When working in local repository always start novel developments from a new worktree.
+2. Create it with the `worktree` skill, which owns the naming contract (prefixes, layout). Confirm the worktree name with the user before creating it.
 
 3. Undestand the task at hand, read the WIKI PRD or follow previously described plan by the user
 4. Use the `tdd` skill to do the test driven development

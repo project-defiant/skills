@@ -21,7 +21,7 @@ Use this skill only for work in the upstream `opentargets/gentropy` repository.
 
 ### Default
 
-- Start implementation work from a feature branch or worktree, typically `feat/{feature_name}`.
+- Start implementation work from a worktree created with the `worktree` skill, typically `feat/{feature_name}`.
 - Prefer doctests for simple public behavior and examples.
 - For PySpark tests, prefer existing Spark session fixtures.
 - Reflect package structure in test structure.

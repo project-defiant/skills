@@ -11,6 +11,7 @@ Shared vocabulary for the WIKI skills lives in [CONTEXT.md](./CONTEXT.md).
 - **[confirm-user](./confirm-user/SKILL.md)**: ask for explicit confirmation before a consequential action.
 - **[notify-user](./notify-user/SKILL.md)**: report an outcome without changing external state.
 - **[tutor-me](./tutor-me/SKILL.md)**: Socratic tutoring with productive struggle.
+- **[worktree](./worktree/SKILL.md)**: bare-repo worktree hub with frozen `feat`/`fix`/`chore`/`perf`/`run` prefixes, nested as `<prefix>/<slug>`.
 - **[developer](./developer/SKILL.md)**: worktree-based development flow, with [nextflow](./developer/nextflow/SKILL.md) and [spark-optimization](./developer/spark-optimization/SKILL.md).
 - **[opentargets](./opentargets/SKILL.md)**: Open Targets router for [gentropy-contributor](./opentargets/gentropy-contributor/SKILL.md), [otai](./opentargets/otai/SKILL.md), [marp-open-targets](./opentargets/marp-open-targets/SKILL.md) and the private cost breakdown.
 - **[pdb-tmux](./pdb-tmux/SKILL.md)**: drive an interactive pdb session inside tmux (from [project-defiant/python-debug-skill](https://github.com/project-defiant/python-debug-skill)).
