@@ -1,0 +1,70 @@
+---
+name: obsidian
+description: Fallback atomic Obsidian CLI operations for the vault at `$SZYMON_WIKI`. Use only when `obsidian-by-file` cannot do the job - querying a Base, renaming or moving a note with wikilink rewriting, using Obsidian's search index - or when the user explicitly asks for the CLI.
+---
+
+# Obsidian CLI
+
+File-based edits through `obsidian-by-file` are the default. Use this skill only for the cases listed in that skill's "Delegate to the Obsidian CLI" section.
+
+Use exactly one mode from the dispatcher table. This skill is a primitive layer: it does not discover targets, choose files, sequence commands, validate content, or ask for permission.
+
+## Default vault resolution
+
+When `$SZYMON_WIKI` is defined, use the basename of that path as the default Obsidian CLI vault name. Do not ask the user for a vault name in that case.
+
+```bash
+vault_name="${SZYMON_WIKI##*/}"
+obsidian vault="$vault_name" read path="Projects/Plan.md"
+```
+
+If `$SZYMON_WIKI` is unset or empty, ask the user explicitly for the vault name before invoking the CLI. Never infer the active vault.
+
+Reference files may use `$vault` as an internal placeholder. The caller must resolve it from `basename($SZYMON_WIKI)` first, or from the user's explicit answer when the environment variable is unavailable.
+
+Minimal invocation:
+
+```bash
+obsidian vault="My Vault" read path="Projects/Plan.md"
+```
+
+## Global constraints
+
+- Put the resolved `vault=<name>` or `vault=<id>` first in every command. Prefer `basename($SZYMON_WIKI)` as the default vault name; ask explicitly only when `$SZYMON_WIKI` is unavailable.
+- Never use the active vault or active file implicitly.
+- Use exact vault-relative paths for file targets.
+- The upstream workflow must establish existence before mutation: create requires absent; all other mutations require present.
+- Perform exactly one CLI action; never combine discovery, selection, validation, and mutation.
+- Operate only on `.md` notes and `.base` definitions.
+- Prefer `format=json` where the selected command supports it.
+- Use `obsidian help <command>` when installed CLI behavior differs from these references.
+
+## Mode dispatcher
+
+| Mode / trigger | CLI command | Expected parameters | Target precondition | Reference |
+|---|---|---|---|---|
+| “List notes/Bases/files” | `files` | `vault`, one `ext=md` or `ext=base`; optional `folder`, `total` | None | [list_files.md](reference/file/list_files.md) |
+| “Search notes for…” | `search` | `vault`, `query`; optional `path`, `limit`, `case`, `format` | Query known; upstream filters results to `.md` | [query_text.md](reference/query_text.md) |
+| “Show matching lines for…” | `search:context` | `vault`, `query`; optional `path`, `limit`, `case`, `format` | Query known; upstream filters results to `.md` | [query_text.md](reference/query_text.md) |
+| “Read/show note…” | `read` | `vault`, existing `.md` `path` | Path exists | [read_note.md](reference/note/read_note.md) |
+| “Create a note…” | `create` | `vault`, new `.md` `path`, `content` | Path does not exist | [create_note.md](reference/note/create_note.md) |
+| “Append this to note…” | `append` | `vault`, existing `.md` `path`, `content`; optional `inline` | Path exists | [append_note.md](reference/note/append_note.md) |
+| “Prepend this to note…” | `prepend` | `vault`, existing `.md` `path`, `content`; optional `inline` | Path exists | [prepend_note.md](reference/note/prepend_note.md) |
+| “Move note…” | `move` | `vault`, existing `.md` `path`, `to` | Source exists; destination resolved | [move_note.md](reference/note/move_note.md) |
+| “Rename note…” | `rename` | `vault`, existing `.md` `path`, new `name` | Source exists; name resolved | [rename_note.md](reference/note/rename_note.md) |
+| “Delete/remove note…” | `delete` | `vault`, existing `.md` `path` | Path exists; trash only | [delete_note.md](reference/note/delete_note.md) |
+| “Add frontmatter tag…” | `property:set` | `vault`, existing `.md` `path`, `name=tags`, complete resulting tag-list `value`, `type=list` | Resulting list prepared upstream | [add_frontmatter_tag.md](reference/tag/add_frontmatter_tag.md) |
+| “Create a new `.base` file…” | `create` | `vault`, new `.base` `path`, `content` | Path does not exist; content prepared upstream | [create_base.md](reference/base/create_base.md) |
+| “Inspect/query/filter a Base…” | `base:query` | `vault`, existing `.base` `path`; optional `view`, `format=json` | Base exists; tag filters use frontmatter `tags` | [query_base.md](reference/base/query_base.md) |
+
+Each row is one operation. The dispatcher must not reinterpret `create` for a `.base` path as `base:create`; `base:create` adds an item to an existing Base and is out of scope.
+
+## CLI prerequisites
+
+The Obsidian 1.12.7+ installer must be installed, and Obsidian must be running with its CLI enabled and registered. Quote values containing spaces; encode multiline `content` with `\\n` and tabs with `\\t`. Deletion uses the default trash behavior; never pass `permanent`.
+
+## Out of scope
+
+Bookmarks, tag counts, inline tags, tasks, daily notes, templates, plugin/theme development, JSON Canvas, Defuddle, Base item creation/update/deletion, full-content replacement, and workflow-level confirmation.
+
+See the [official Obsidian CLI documentation](https://obsidian.md/help/cli).

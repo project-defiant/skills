@@ -1,2 +1,5 @@
 node_modules
 .claude
+
+# Private/local skills, not intended for the public skills repo
+opentargets-cost-breakdown/
