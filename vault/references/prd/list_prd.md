@@ -10,13 +10,13 @@ This task lists immutable PRD files only. It does not resolve projects, select a
 list-prds(vault, project_path)
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `project_path`: exact resolved project path, for example `Projects/Project Name`.
 
 ## Preconditions
 
 - `vault` and `project_path` are present.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - `jq` is installed.
 - Use the explicit vault and the exact `PRD` folder scope.
 
@@ -36,7 +36,7 @@ command -v jq >/dev/null || {
   exit 1
 }
 
-obsidian vault="$vault" files folder="$project_path/PRD" ext=md |
+(cd "$vault" && find "$project_path/PRD" -type f -name '*.md') |
 sed 's/^[[:space:]-]*//' |
 awk -v prefix="$project_path/PRD/" 'index($0, prefix) == 1 && $NF ~ /\.md$/ {
   name = $NF

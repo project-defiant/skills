@@ -25,7 +25,7 @@ update-project(vault, project, changes)
 - `changes.path` is an exact vault-relative path inside `project.path`.
 - The target Markdown file already exists.
 - The caller has already confirmed the proposed change.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - Use the explicit vault and never the active file.
 - Do not replace full note content or use `overwrite`.
 - `changes.content` must not contain frontmatter, a second frontmatter block, `# Requirements`, `## Decisions`, or dated `###` headings.
@@ -33,12 +33,10 @@ update-project(vault, project, changes)
 
 ## Task
 
-Append the supplied content to the existing target note with one Obsidian CLI operation:
+Append the supplied content to the existing target note with one file operation:
 
 ```bash
-obsidian vault="$vault" append \
-  path="$changes_path" \
-  content="$changes_content"
+printf '\n%s\n' "$changes_content" >> "$vault/$changes_path"
 ```
 
 Preserve all existing frontmatter, headers, and entries. Use `inline` only when explicitly requested by the caller.

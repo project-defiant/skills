@@ -10,14 +10,14 @@ This task does not list projects, check for duplicates, ask for confirmation, or
 create-project(vault, project_name)
 ```
 
-- `vault`: explicit Obsidian vault name or ID supplied by the user.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `project_name`: confirmed project folder name.
 
 ## Preconditions
 
 - `vault` and `project_name` are present.
 - The caller has already confirmed that `Projects/{project_name}/` does not exist.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - Use exact vault-relative paths and never use the active vault.
 - Do not use `overwrite`.
 
@@ -29,7 +29,7 @@ Create these three Markdown notes as a scaffold:
 2. `Projects/{project_name}/requirements.md`
 3. `Projects/{project_name}/meetings.md`
 
-Use three separate Obsidian CLI `create` actions, each with `vault=<name|id>` first. Create `log.md` and `meetings.md` with blank content. Create `requirements.md` with only this frontmatter, using the current local date for `created`:
+Use three separate file `create` actions under `$vault`, refusing to overwrite. Create `log.md` and `meetings.md` with blank content. Create `requirements.md` with only this frontmatter, using the current local date for `created`:
 
 ```yaml
 ---

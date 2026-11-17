@@ -14,4 +14,4 @@ Create `Source/{metadata.source_key}.md` using the agreed source-note frontmatte
 
 The body is the supplied summary. Do not modify the PDF, add page references, create highlights, or process topic notes. Return success or failure only.
 
-Invoke one Obsidian CLI `create` operation with the complete prepared Markdown content. The task does not perform discovery, confirmation, duplicate checks, or topic-note writes.
+Invoke one file `create` operation with the complete prepared Markdown content. The task does not perform discovery, confirmation, duplicate checks, or topic-note writes.

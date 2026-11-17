@@ -10,13 +10,13 @@ This task does not resolve projects, notify the user, ask for confirmation, or r
 lint-project(vault, project)
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `project`: resolved project object containing `name` and `path`.
 
 ## Preconditions
 
 - `vault` and a resolved `project` are present.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - Use exact vault-relative paths and never use the active vault.
 
 ## Task
@@ -25,7 +25,7 @@ lint-project(vault, project)
 2. List Markdown files under the project path:
 
    ```bash
-   obsidian vault="$vault" files folder="$project_path" ext=md
+   (cd "$vault" && find "$project_path" -type f -name '*.md')
    ```
 
 3. Compare the returned paths with the canonical structure in `project_structure.md`.
@@ -44,7 +44,7 @@ Allowed additional files are PRD documents matching:
 PRD/YYYY-MM-DD-{prd-name}.md
 ```
 
-Report required files that are absent in `missing`. Report files outside the required paths and valid PRD paths in `unexpected`. An empty `PRD/` folder is not an issue because folders are not listed or created independently by Obsidian CLI.
+Report required files that are absent in `missing`. Report files outside the required paths and valid PRD paths in `unexpected`. An empty `PRD/` folder is not an issue because only Markdown files are listed and folders are never created independently.
 
 ## Output
 

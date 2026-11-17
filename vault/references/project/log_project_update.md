@@ -10,7 +10,7 @@ This task does not resolve a project, list files, ask for confirmation, notify t
 log-project-update(vault, project_path, context)
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `project_path`: exact project path resolved from conversation context, for example `Projects/Project Name`.
 - `context`: information about the completed action or project change.
 
@@ -18,7 +18,7 @@ log-project-update(vault, project_path, context)
 
 - `vault`, `project_path`, and `context` are present.
 - `Projects/{project_name}/log.md` already exists.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - The caller has already handled project resolution and confirmation.
 
 ## Task
@@ -30,15 +30,13 @@ log-project-update(vault, project_path, context)
    ```bash
    today=$(date +%F)
 
-   obsidian vault="$vault" append \
-     path="$project_path/log.md" \
-     content="### $today — Update\n\n$update_content"
+   printf '\n### %s — Update\n\n%s\n' "$today" "$update_content" >> "$vault/$project_path/log.md"
    ```
 
-Preserve all existing log content and use exactly one Obsidian CLI mutation.
+Preserve all existing log content and use exactly one file mutation.
 
 ## Result
 
 - Return `success` when the append completes.
-- Return `failure` when the Obsidian CLI operation fails.
+- Return `failure` when the file operation fails.
 - Do not return project metadata, file contents, generated content, or a JSON schema.

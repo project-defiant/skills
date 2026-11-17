@@ -1,19 +1,18 @@
 ---
 name: vault
-description: Manage a user's Obsidian LLM-wiki through Obsidian CLI workflows, defaulting to the vault named by the basename of `$SZYMON_WIKI` and asking for a vault name only when that variable is unavailable.
+description: Manage a user's Obsidian LLM-wiki (projects, PRDs, meetings, source and topic notes) through direct file edits in the vault at `$SZYMON_WIKI`, falling back to the Obsidian CLI only for Base queries or link-aware renames.
 ---
 
 # vault - Obsidian LLM-wiki skill
 
 ## Prerequisites
 
-- If `$SZYMON_WIKI` is defined, derive the default Obsidian vault name from its basename and do not ask the user for a vault name.
-- If `$SZYMON_WIKI` is unset or empty, ask the user explicitly for `vault=<name|id>` before continuing. Do not infer or use Obsidian's active vault.
-- Obsidian CLI 1.12.7+ must be installed, and Obsidian must be running with CLI access enabled. If unavailable, STOP and tell the user that the Obsidian CLI and a CLI-enabled running Obsidian instance are required.
-- Every CLI operation must pass the resolved `vault=<name|id>` first and use an exact vault-relative path.
-
-The public workflow input is the project, PRD, note, or topic request; callers do not need to provide a vault argument when `$SZYMON_WIKI` is defined. Legacy workflow signatures and reference examples may retain an internal `vault` placeholder for the resolved CLI name.
+- `$SZYMON_WIKI` is the vault root. Every operation reads or writes files under it using exact vault-relative paths. Do not ask the user for a vault when it is defined.
+- If `$SZYMON_WIKI` is unset or empty, ask the user explicitly for the vault root before continuing. Do not infer or use Obsidian's active vault.
+- File operations follow `obsidian-by-file`. Use the `obsidian` CLI skill only for the cases that skill delegates (Base queries, link-aware rename/move) - Obsidian does not need to be running otherwise.
 - Prefer `ripgrep` (`rg`); fall back to `grep -r` if absent.
+
+The public workflow input is the project, PRD, note, or topic request; callers do not need to provide a vault argument. Workflow signatures and reference examples keep a `vault` placeholder that means the resolved vault root.
 
 ## Better ask then regret
 
@@ -22,7 +21,7 @@ Follow the notion, that if the answer is ambiguous can cause misunderstanding, a
 ## Project structure
 
 Project structure in the vault is specified in `references/project/project_structure.md`.
-Project workflows accept a project name, resolve it to an exact `Projects/{Project}/` path through Obsidian CLI file listing, and only then read or mutate files. The CLI vault name comes from `basename($SZYMON_WIKI)` unless the variable is unavailable and the user supplies one explicitly.
+Project workflows accept a project name, resolve it to an exact `Projects/{Project}/` path by listing files under `$SZYMON_WIKI/Projects`, and only then read or mutate files.
 
 ```
 {vault}/
@@ -64,11 +63,11 @@ Example
 | "Update a project's meeting note" | update-meeting-note(vault, project_name, meeting, date, context) | `references/meeting/update_meeting_note.md` |
 | "Review a publication and prepare source-note" | review-publication(vault, path_to_publication) | `references/source-note/create_source_note.md`, `references/source-note/read_publication.md`, `references/source-note/summarize_publication.md`, `references/source-note/extract_topics.md` |
 | "Search for the source note linked to a publication" | search-source-note(vault, source_key) | `references/source-note/search_source_notes.md` |
-| "Read a source note" | read-source-note(vault, source_key) | `references/source-note/search_source_notes.md` + Obsidian `read` |
+| "Read a source note" | read-source-note(vault, source_key) | `references/source-note/search_source_notes.md` + `read-note` |
 | "Create a topic-note from source" | create-topic-note(vault, topic, content, source_link) | `references/topic-note/create_topic_note.md` |
 | "Update a topic-note with information from source" | update-topic-note(vault, topic, content, source_link) | `references/topic-note/update_topic_note.md` |
 | "Search for topic in topic-notes" | search-topic-note(vault, topic) | `references/topic-note/search_topic_notes.md` |
-| "Read a topic note" | read-topic-note(vault, topic) | `references/topic-note/search_topic_notes.md` + Obsidian `read` |
+| "Read a topic note" | read-topic-note(vault, topic) | `references/topic-note/search_topic_notes.md` + `read-note` |
 | "Log project update" | log-project-update(vault, project_path, context) | `references/project/log_project_update.md` |
 | "Extract publication metadata from PDF" | extract-publication-metadata(publication_path) | `references/source-note/extract_publication_metadata.md` |
 | "Read publication text from PDF" | read-publication(publication_path) | `references/source-note/read_publication.md` |
@@ -93,10 +92,10 @@ Modes that operate on a project must resolve one:
 
 1. **Infer** from recent conversation context (project names mentioned).
 2. **Confirm** briefly: `Filing to [[project-name]]. Continue?` — proceed unless the user objects.
-3. If nothing inferable, **ask**: list existing folders under `Projects/` through Obsidian CLI and let the user pick.
+3. If nothing inferable, **ask**: list existing folders under `Projects/` and let the user pick.
 4. If the chosen project doesn't exist, run **create-project(project_name)** first.
 
-Resolution must use Obsidian CLI file listing with the resolved vault name and an exact `Projects` folder scope. The separate `obsidian-by-file` fallback may access `$SZYMON_WIKI` only when CLI routing selects it; do not rely on the active vault.
+Resolution must list files under `$SZYMON_WIKI/Projects` with an exact folder scope; do not rely on the active vault.
 
 ## Notes
 
@@ -246,7 +245,7 @@ MIGRATE PROJECT WORKFLOW(vault, source_path, project_name):
     notify-user("project exists")
     STOP
 
-  source_content = obsidian.read(vault, source_path)
+  source_content = read-note(vault, source_path)
 
   migration_plan = grill(user):
     what to preserve
@@ -361,7 +360,7 @@ READ SOURCE NOTE WORKFLOW(vault, source_key):
     notify-user("Source note does not exist")
     STOP
 
-  content = obsidian.read(vault, note_path)
+  content = read-note(vault, note_path)
 
   return content
 ```
@@ -377,7 +376,7 @@ READ TOPIC NOTE WORKFLOW(vault, topic):
     notify-user("Topic note does not exist")
     STOP
 
-  content = obsidian.read(vault, note_path)
+  content = read-note(vault, note_path)
 
   return content
 ```

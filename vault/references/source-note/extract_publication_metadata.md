@@ -1,6 +1,6 @@
 # Extract publication metadata
 
-Isolated read-only publication-metadata task used by publication workflows. Use the PDF skill and PDF tooling for this task; do not use Obsidian CLI to read the publication.
+Isolated read-only publication-metadata task used by publication workflows. Use the PDF skill and PDF tooling for this task; do not read the publication through the vault skills.
 
 This task extracts bibliographic facts from the supplied publication. It does not access the Wiki, create wikilinks, create notes, or make workflow decisions.
 

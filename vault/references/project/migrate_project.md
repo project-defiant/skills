@@ -16,7 +16,7 @@ migrate-project(
 )
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `source_path`: exact source path supplied by the workflow.
 - `project_name`: confirmed destination project name.
 - `source_content`: source material already read by the workflow.
@@ -28,7 +28,7 @@ migrate-project(
 - The destination `Projects/{project_name}/` does not exist.
 - `source_content` has already been read.
 - `migration_plan` has already been confirmed by the user.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - Use the explicit vault and exact vault-relative paths.
 - Do not create an empty `PRD/` folder.
 
@@ -45,12 +45,11 @@ migrate-project(
    ```
 
 4. Create approved PRD files only when the migration plan retains PRD material. PRD files must follow `PRD/YYYY-MM-DD-{prd-name}.md`.
-5. Use one separate Obsidian CLI `create` action for each destination Markdown note:
+5. Use one separate file `create` action for each destination Markdown note:
 
    ```bash
-   obsidian vault="$vault" create \
-     path="$destination_path" \
-     content="$destination_content"
+   mkdir -p "$(dirname "$vault/$destination_path")"
+   (set -C; printf '%s' "$destination_content" > "$vault/$destination_path")
    ```
 
 Preserve the canonical scaffold and required project metadata. The scaffold must contain blank `log.md` and `meetings.md` files, and `requirements.md` with frontmatter only. Do not add requirements headings, Decisions, or dated entries during migration. Do not overwrite existing files or create files outside the canonical project structure.
@@ -58,4 +57,4 @@ Preserve the canonical scaffold and required project metadata. The scaffold must
 ## Result
 
 - Return `success` when all approved destination files are created.
-- Return `failure` when any Obsidian CLI operation fails.
+- Return `failure` when any file operation fails.

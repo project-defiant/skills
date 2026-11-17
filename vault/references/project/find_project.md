@@ -13,7 +13,7 @@ find-project(vault, project_name)
 ## Preconditions
 
 - `vault` and `project_name` are present.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - `jq` is installed.
 - The command must use the explicit vault and an exact `Projects/{project_name}` folder scope.
 
@@ -31,7 +31,7 @@ command -v jq >/dev/null || {
   exit 1
 }
 
-obsidian vault="$vault" files folder="Projects/$project_name" ext=md |
+(cd "$vault" && find "Projects/$project_name" -type f -name '*.md') |
 sed 's/^[[:space:]-]*//' |
 awk -F/ '$1 == "Projects" && NF >= 3 && $NF ~ /\.md$/ {
   print

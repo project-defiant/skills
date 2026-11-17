@@ -10,13 +10,13 @@ This task reads the resolved project files and produces an agent-generated summa
 summarize-project(vault, project)
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `project`: resolved project object containing `name` and `path`.
 
 ## Preconditions
 
 - `vault` and a resolved `project` are present.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - Use exact vault-relative paths and never use the active vault.
 
 ## Task
@@ -24,13 +24,13 @@ summarize-project(vault, project)
 Set `project_path = project.path`, then list Markdown files under that exact project path:
 
    ```bash
-   obsidian vault="$vault" files folder="$project_path" ext=md
+   (cd "$vault" && find "$project_path" -type f -name '*.md')
    ```
 
-2. For every returned path, read the note with a separate CLI operation:
+2. For every returned path, read the note:
 
    ```bash
-   obsidian vault="$vault" read path="$file_path"
+   cat "$vault/$file_path"
    ```
 
 3. Synthesize the contents into a concise narrative. The agent must generate this synthesis and place it in the `summary` field; do not return raw file contents as the summary.

@@ -18,4 +18,4 @@ Append one new source block to the existing `Topic/{topic}.md` without changing 
 
 Topic notes do not contain dates. Return success or failure only. Do not search for the note, create missing notes, synthesize across sources, or make workflow decisions.
 
-Invoke one Obsidian CLI `append` operation against the existing exact path. Preserve all existing content and frontmatter.
+Invoke one file `append` operation against the existing exact path. Preserve all existing content and frontmatter.

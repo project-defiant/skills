@@ -10,11 +10,11 @@ This task lists project folders only. It does not select a project, check for du
 list-projects(vault)
 ```
 
-`vault` is the explicit Obsidian vault name or ID supplied by the user.
+`vault` is the vault root directory (`$SZYMON_WIKI`).
 
 ## Preconditions
 
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - `jq` is installed.
 - The command must use the explicit vault and the `Projects` folder scope.
 
@@ -26,7 +26,7 @@ list-projects requires jq
 
 ## Task
 
-Run the Obsidian CLI listing command and convert its newline-delimited paths to JSON:
+Run the file listing command and convert its newline-delimited paths to JSON:
 
 ```bash
 command -v jq >/dev/null || {
@@ -34,7 +34,7 @@ command -v jq >/dev/null || {
   exit 1
 }
 
-obsidian vault="$vault" files folder="Projects" ext=md |
+(cd "$vault" && find "Projects" -type f -name '*.md') |
 sed 's/^[[:space:]-]*//' |
 awk -F/ '$1 == "Projects" && NF >= 3 && $NF ~ /\.md$/ {
   print $2 "\tProjects/" $2

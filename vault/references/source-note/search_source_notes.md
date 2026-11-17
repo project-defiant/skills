@@ -10,13 +10,13 @@ This task checks one exact source-note identity. It does not read note contents,
 search-source-note(vault, source_key)
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `source_key`: exact source identity in `{last_author} {year}` format, for example `Tang 2024`.
 
 ## Preconditions
 
 - `vault` and `source_key` are present.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - `jq` is installed.
 - Use the explicit vault and the `Source` folder scope.
 
@@ -38,7 +38,7 @@ command -v jq >/dev/null || {
 
 target="Source/$source_key.md"
 path=$(
-  obsidian vault="$vault" files folder="Source" ext=md |
+  (cd "$vault" && find "Source" -type f -name '*.md') |
   sed 's/^[[:space:]-]*//' |
   awk -v target="$target" '$0 == target { print; exit }'
 )

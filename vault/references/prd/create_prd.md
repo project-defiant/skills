@@ -10,7 +10,7 @@ This task does not resolve projects, check filename collisions, grill the user, 
 create-prd(vault, prd_path, prd_content)
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `prd_path`: exact destination path, for example `Projects/Project Name/PRD/2026-08-31-Project Plan.md`.
 - `prd_content`: complete PRD content generated and approved by the workflow.
 
@@ -21,17 +21,16 @@ create-prd(vault, prd_path, prd_content)
 - The exact destination path does not exist.
 - `prd_content` conforms to the canonical immutable PRD structure in `project_structure.md`.
 - The caller has already performed collision checks and received confirmation.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - Use the explicit vault and exact vault-relative paths.
 
 ## Task
 
-Create the complete immutable PRD with one Obsidian CLI operation:
+Create the complete immutable PRD with one file operation:
 
 ```bash
-obsidian vault="$vault" create \
-  path="$prd_path" \
-  content="$prd_content"
+mkdir -p "$(dirname "$vault/$prd_path")"
+(set -C; printf '%s' "$prd_content" > "$vault/$prd_path")
 ```
 
 The `PRD/` folder is created implicitly when the first PRD file is created. Do not create an empty folder or use `overwrite`.
@@ -39,4 +38,4 @@ The `PRD/` folder is created implicitly when the first PRD file is created. Do n
 ## Result
 
 - Return `success` when the PRD is created.
-- Return `failure` when the Obsidian CLI operation fails.
+- Return `failure` when the file operation fails.

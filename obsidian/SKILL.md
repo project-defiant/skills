@@ -1,9 +1,11 @@
 ---
 name: obsidian
-description: Provides atomic Obsidian CLI operations for explicitly targeted Markdown notes and Base definitions. Use when an upstream workflow has already resolved the vault, operation, and exact path for listing, searching, reading, creating, appending, prepending, moving, renaming, deleting, tagging, or querying a Base.
+description: Fallback atomic Obsidian CLI operations for the vault at `$SZYMON_WIKI`. Use only when `obsidian-by-file` cannot do the job - querying a Base, renaming or moving a note with wikilink rewriting, using Obsidian's search index - or when the user explicitly asks for the CLI.
 ---
 
 # Obsidian CLI
+
+File-based edits through `obsidian-by-file` are the default. Use this skill only for the cases listed in that skill's "Delegate to the Obsidian CLI" section.
 
 Use exactly one mode from the dispatcher table. This skill is a primitive layer: it does not discover targets, choose files, sequence commands, validate content, or ask for permission.
 

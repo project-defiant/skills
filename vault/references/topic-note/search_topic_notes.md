@@ -15,7 +15,7 @@ Use:
 ```bash
 target="Topic/$topic.md"
 path=$(
-  obsidian vault="$vault" files folder="Topic" ext=md |
+  (cd "$vault" && find "Topic" -type f -name '*.md') |
   sed 's/^[[:space:]-]*//' |
   awk -v target="$target" '$0 == target { print; exit }'
 )

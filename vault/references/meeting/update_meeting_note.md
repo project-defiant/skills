@@ -10,7 +10,7 @@ This task does not resolve projects, list files, ask for confirmation, notify th
 update-meeting-note(vault, project, meeting, date, context)
 ```
 
-- `vault`: explicit Obsidian vault name or ID.
+- `vault`: vault root directory (`$SZYMON_WIKI`).
 - `project`: resolved Wiki project object containing `path`.
 - `meeting`: meeting title.
 - `date`: meeting date in `YYYY-MM-DD` format.
@@ -21,7 +21,7 @@ update-meeting-note(vault, project, meeting, date, context)
 - All inputs are present.
 - `Projects/{project_name}/meetings.md` already exists.
 - The caller has already resolved the project and received user confirmation.
-- Obsidian CLI is available and Obsidian is running with CLI access enabled.
+- `$SZYMON_WIKI` resolves to the vault root directory.
 - Use the explicit vault and exact vault-relative paths.
 
 ## Task
@@ -31,14 +31,12 @@ update-meeting-note(vault, project, meeting, date, context)
 3. Append one dated meeting entry to the existing note:
 
    ```bash
-   obsidian vault="$vault" append \
-     path="$project_path/meetings.md" \
-     content="### $date — $meeting\n\n$meeting_summary"
+   printf '\n### %s — %s\n\n%s\n' "$date" "$meeting" "$meeting_summary" >> "$vault/$project_path/meetings.md"
    ```
 
-Preserve all existing meeting summaries and use exactly one Obsidian CLI mutation.
+Preserve all existing meeting summaries and use exactly one file mutation.
 
 ## Result
 
 - Return `success` when the append completes.
-- Return `failure` when the Obsidian CLI operation fails.
+- Return `failure` when the file operation fails.
