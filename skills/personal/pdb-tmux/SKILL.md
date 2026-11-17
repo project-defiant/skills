@@ -1,8 +1,7 @@
 ---
 name: pdb-tmux
-description: Drive an interactive Python pdb session inside tmux by capturing pane output and sending keys. Use when you need pdb-style REPL debugging but the environment cannot attach to an interactive TTY directly. Supports start/capture/send and common pdb shortcuts (n/s/c/r/w/l/b/p/pp).
+description: Drive an interactive Python pdb session inside tmux by capturing pane output and sending keys. Use when debugging Python interactively: stepping through code, setting breakpoints, or inspecting variables and stack frames at runtime, especially when the environment cannot attach to an interactive TTY directly. Supports start/capture/send and common pdb shortcuts (n/s/c/r/w/l/b/p/pp).
 argument-hint: "start -- <[uv run] python -m pdb ...> | capture [lines] | send <pdb-cmd> | n|s|c|r|w|l|b ... | p <expr> | pp <expr>"
-disable-model-invocation: true
 allowed-tools: Bash
 ---
 
